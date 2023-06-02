@@ -4,6 +4,9 @@
 
 # PT6312 library for Arduino/AVR
 
+# Minhas edições.
+I made some adaptations in the codes to make it work on my display, I had to edit the fonts file in variants_functions.cpp, so that my DVD display displayed the characters correctly.
+
 ## Summary
 
 PT6312 is an Arduino/AVR library for the PT6312 family of Vacuum Fluorescent Display (VFD)
