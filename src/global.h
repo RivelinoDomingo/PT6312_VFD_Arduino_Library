@@ -26,20 +26,23 @@
  * User setup
  */
 // MCU IO: Pins, Registers, Ports
-#define VFD_CS_DDR              DDRB
-#define VFD_CS_PORT             PORTB
-#define VFD_CS_PIN              PB0
-#define VFD_SCLK_DDR            DDRB
-#define VFD_SCLK_PORT           PORTB
-#define VFD_SCLK_PIN            PB1
-#define VFD_DATA_DDR            DDRB
-#define VFD_DATA_PORT           PORTB
-#define VFD_DATA_PIN            PB2
-#define VFD_DATA_R_ONLY_PORT    PINB
+#define VFD_CS_DDR              DDRD
+#define VFD_CS_PORT             PORTD
+//#define VFD_CS_PIN              PB0
+#define VFD_CS_PIN              2
+#define VFD_SCLK_DDR            DDRD
+#define VFD_SCLK_PORT           PORTD
+//#define VFD_SCLK_PIN            PB1
+#define VFD_SCLK_PIN            3
+#define VFD_DATA_DDR            DDRD
+#define VFD_DATA_PORT           PORTD
+//#define VFD_DATA_PIN            PB2
+#define VFD_DATA_PIN            4
+#define VFD_DATA_R_ONLY_PORT    PIND
 // VFD Display features
-#define VFD_GRIDS               4 // Number of grids
-#define VFD_DISPLAYABLE_DIGITS  6 // Number of characters that can be displayed simultaneously
-#define VFD_SCROLL_DELAY        500 // In milliseconds
+#define VFD_GRIDS               5 // Number of grids
+#define VFD_DISPLAYABLE_DIGITS  7 // Number of characters that can be displayed simultaneously
+#define VFD_SCROLL_DELAY        400 // In milliseconds
 #define VFD_BUSY_DELAY          2.35 // In milliseconds
 // Library options
 #define ENABLE_ICON_BUFFER      0 // Enable functions and extra buffer to display icons (except spinning circle)
@@ -48,6 +51,6 @@
 // "2 chars per grid display"
 #define VFD_VARIANT_1
 // "1 char per grid display"
-// #define VFD_VARIANT_2
+//#define VFD_VARIANT_2
 
 #endif // ET16312N_GLOBAL_H

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "PT6312.h"
+#include "HardwareSerial.h"
 
 uint8_t grid_cursor;
 
@@ -274,6 +275,7 @@ void VFD_scrollText(const char *string, void(pfunc)())
         size++;
         string++;
     }
+
     // Restore the pointer to the input string
     string = string_start_pos;
 
@@ -514,8 +516,12 @@ void VFD_segmentsGenericTest(void)
     // lsb: segments 8-1
     uint8_t msb = 0, lsb = 0;
 
+    // Para depuração dos nomes dos segmentos.
+    //Serial.println("--- Inicio ---");
+
     for (uint8_t grid = 1; grid <= VFD_GRIDS; grid++)
     {
+        VFD_clear();
         // Note: VFD_SEGMENTS is defined in VFD_resetDisplay()
         for (uint8_t i = 0; i < VFD_SEGMENTS; i++)
         {
@@ -533,10 +539,31 @@ void VFD_segmentsGenericTest(void)
             VFD_command(lsb, false);
             VFD_command(msb, true);
 
-            _delay_ms(2000);
+            /*
+            // Para depuração dos nomes dos segmentos.
+            if (i == 0){
+                Serial.print("Grid      ");
+                Serial.print("LSB       ");
+                Serial.println("MSB");
+            }
+            Serial.print(" ");
+            Serial.print(grid);
+            Serial.print("         ");
+            Serial.print(lsb, BIN);
+            Serial.print("         ");
+            Serial.println(msb, BIN);
+            */
+
+            _delay_ms(200);
         }
         VFD_clear();
+        // Para depuração dos nomes dos segmentos.
+        Serial.println("    --- FIM GRID ---");
     }
+    // Para depuração dos nomes dos segmentos.
+    //Serial.println();
+    //Serial.println("    !!!--- FINAL ---!!!\n");
+    _delay_ms(2000);
 }
 
 

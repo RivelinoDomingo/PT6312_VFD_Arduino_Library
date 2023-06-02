@@ -18,6 +18,7 @@
 /* This file is dedicated for a "2 chars per grid display".
  */
 #include <global.h>
+//#include "HardwareSerial.h"
 
 #ifdef VFD_VARIANT_1
 
@@ -36,26 +37,147 @@
  */
 void VFD_writeString(const char *string, bool colon_symbol)
 {
-    uint8_t lsb_byte;
-    uint8_t msb_byte;
+    // Teste de ordenação
+    int index = 0;   // Valor do Indice Completo.
+    int H_point=0;   // Onde apareceu o ponto ":"
+    bool bt1 = false;
+    bool bt2 = false;
+    int id = 0;      // Valor de Indice sem o caractere ':'.
+    while (string[index] != '\0'){
+        //
+        if (string[index] == ':'){
+           id--;
+        }
+        index++;
+        id++;
+    }
+    uint8_t txt[id];
 
+    // Limitando o tamanho da exibição aos digitos disponiveis no display.
+    if (id > VFD_DISPLAYABLE_DIGITS){
+        id = VFD_DISPLAYABLE_DIGITS;
+    }
+    //
+    //// Loop de tratamento de caracteres e de envio de dados para o display.
+    for (int i=0; i<id; ++i)
+    {
+        // Serial.print("\n");
+        // Serial.print("  Inicio: ");
+        // Serial.print(i);
+        // Serial.print(" === ");
+        // Serial.print(string[i]);
+        // Serial.print("\n");
+        // String Exibida "114:03:05"
+        /////////////////////////////////
+        if (H_point>3 || bt1 || bt2)
+        {
+            if (bt1)
+            {
+                txt[i] |= FONT[string[i] - 0x20][1];
+                bt1 = false;
+            }
+            if (bt2)
+            {
+                txt[i] |= FONT[string[i+2] - 0x20][1];
+                bt2 = false;
+            }
+            if (H_point>3)
+            {
+                txt[i] = FONT[string[i+2] - 0x20][1]; // Atribui a esse indice o valor de duas casas à frente na *stiring.
+            }
+
+        }else if (H_point>0)
+        {
+            txt[i] = FONT[string[i+1] - 0x20][1]; // Atribui a esse indice o valor do seguinte.
+        }else
+        {
+            txt[i] = FONT[string[i] - 0x20][1];
+        }
+        /////////////////////////////////
+        if (string[i] == ':') // Corrigindo e imprimindo sinal de ':' no display.
+        {
+            if (i>4) // Condiciona para que imprima os ultimos caracteres da forma certa.
+            {
+                txt[i-2] |= 0b10000000; // i-2 por que ja apareceu um ponto antes, e deslocou um dos digitos uma casa a frente.
+                txt[i-1] = FONT[string[i+1] - 0x20][1]; // Atribui a esse indice o valor uma casa à frente no indice anterior
+                H_point = i;
+            }else
+            {
+                txt[i-1] |= 0b10000000;
+                txt[i] = FONT[string[i+1] - 0x20][1]; // Atribui a esse indice o valor do seguinte.
+                H_point = i;
+            }
+
+        }
+        /////////////////////////////////
+        if (i == id-2) // Corrige erro no segundo digito da 1ª grade.
+        {
+            if (txt[i] & 0b0000001)
+            {
+                txt[i+1] = 0b10000000;
+                bt1 = true;
+            }
+            txt[i] = txt[i] >> 1;     // Desloca à direita 1 bit, para corrigir o display.
+
+        }else if (H_point >= id-2)    // Caso o segundo digito tenha sido definido na linha 101.
+        {
+            txt[i-1] = txt[i-1] >> 1; // Desloca à direita 1 bit, para corrigir o display.
+            txt[i] |= 0b10000000;     // Reativa o bit 1 desativado no deslocamento feito acima.
+        }
+        /////////////////////////////////
+        if (i == id-1) // Parte Final.
+        {
+            // Print for debug.
+            // for (int a=0; a<id; ++a)
+            // {
+            //     Serial.print("  Indice: ");
+            //     Serial.print(a);
+            //     Serial.print(" = ");
+            //     Serial.print(txt[a],BIN);
+            // }
+            for (int x=id-1; x>=0; x--) // Roda todos os comandos de uma vez.
+            {
+                VFD_command(txt[x], false);
+            }
+        }
+        /////////////////////////////////
+    }
+    //Serial.println();
+
+    /*
     while (*string > '\0') { // TODO: security test cursor <= VFD_GRIDS//DISPLAYABLE
-        if ((grid_cursor == 3) || (grid_cursor == 4)) {
+        Serial.println(string - 0x20);
+        if ((grid_cursor == 1) || (grid_cursor == 2) || (grid_cursor == 3)) {
             // Cursor positions: 3 or 4: 2 chars per grid
             // MSB: Get LSB of left/1st char
             msb_byte = FONT[*string - 0x20][1];
+            //Serial.print("MSB_byte: ");
+            //Serial.print(msb_byte, BIN);
+            //Serial.println();
             string++;
             // Test char validity
             if (*string > '\0') {
                 // LSB: Get LSB of right/2nd char
                 lsb_byte = FONT[*string - 0x20][1];
+                //Serial.print("LSB_byte: ");
+                //Serial.println(lsb_byte, BIN);
+                //Serial.println();
             } else {
                 lsb_byte = 0;
                 string--; // Allow end of while loop
             }
 
+            // Corrige erro do meu display!!
+            if (grid_cursor == 1){
+
+                if (lsb_byte & 0b00000001){
+                    msb_byte |= 0b10000000;
+                }
+                lsb_byte = lsb_byte >> 1;
+            }
+
             // Set optional colon symbol
-            if (colon_symbol && grid_cursor == 4){
+            if (colon_symbol && grid_cursor == 1){
                 #if VFD_COLON_SYMBOL_BIT > 8
                 // Add the symbol on the MSB part of the grid
                 msb_byte |= 1 << (VFD_COLON_SYMBOL_BIT - 9);
@@ -73,6 +195,7 @@ void VFD_writeString(const char *string, bool colon_symbol)
             msb_byte = FONT[*string - 0x20][0];
         }
 
+        /*
         #if ENABLE_ICON_BUFFER == 1
         // Merge icons and char data
         uint8_t memory_addr = (grid_cursor * PT6312_BYTES_PER_GRID) - PT6312_BYTES_PER_GRID;
@@ -83,10 +206,23 @@ void VFD_writeString(const char *string, bool colon_symbol)
         VFD_command(msb_byte, false);
         #endif
 
+
+        //VFD_command(msb_byte, false);
+        //VFD_command(lsb_byte, false);
+        texto_lsb[id] = msb_byte;
+        texto_msb[id] = lsb_byte;
+
+
         grid_cursor++;
         string++;
+        id++;
     }
+    */
 
+    /*for (int i=0; i<index; i++){
+        VFD_command(texto_msb[index-i], false);
+        VFD_command(texto_msb[index-i], false);
+    }*/
     // Signal the driver that the data transmission is over
     VFD_CSSignal();
 }
