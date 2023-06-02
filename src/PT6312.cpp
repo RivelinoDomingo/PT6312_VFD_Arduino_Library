@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "PT6312.h"
-#include "HardwareSerial.h"
+//#include "HardwareSerial.h" // For help debug
 
 uint8_t grid_cursor;
 

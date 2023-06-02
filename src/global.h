@@ -25,19 +25,19 @@
 /**
  * User setup
  */
-// MCU IO: Pins, Registers, Ports
-#define VFD_CS_DDR              DDRD
-#define VFD_CS_PORT             PORTD
+// MCU IO: Pins, Registers, Ports, DDRD=0-7 pins of arduino,
+#define VFD_CS_DDR              DDRD   // Definições de portas e registradores, DDRD refere-se a portas digitais de 0-7 no arduino uno.
+#define VFD_CS_PORT             PORTD  // Definições de portas e registradores, PORTD refere-se a portas digitais de 0-7 no arduino uno.
 //#define VFD_CS_PIN              PB0
-#define VFD_CS_PIN              2
+#define VFD_CS_PIN              2      // Porta digital usada para os sinais STB.
 #define VFD_SCLK_DDR            DDRD
 #define VFD_SCLK_PORT           PORTD
 //#define VFD_SCLK_PIN            PB1
-#define VFD_SCLK_PIN            3
+#define VFD_SCLK_PIN            3      // Porta usada para sinais de clock.
 #define VFD_DATA_DDR            DDRD
 #define VFD_DATA_PORT           PORTD
 //#define VFD_DATA_PIN            PB2
-#define VFD_DATA_PIN            4
+#define VFD_DATA_PIN            4     // Porta usada para sinais de dados.
 #define VFD_DATA_R_ONLY_PORT    PIND
 // VFD Display features
 #define VFD_GRIDS               5 // Number of grids
